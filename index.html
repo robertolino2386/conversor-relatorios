@@ -392,7 +392,7 @@
         const item = {
           'Clientes': linha['Cia.'] ?? '',
           'Fatura': limparFatura(linha['Docto']),
-          'Nr. AP': linha['Nr. AP'] === '' || linha['Nr. AP'] === null || linha['Nr. AP'] === undefined ? '' : String(linha['Nr. AP']).trim(),
+          'Nr. AP': linha['Nr. AP'] === '' || linha['Nr. AP'] === null || linha['Nr. AP'] === undefined ? '' : String(linha['Nr. AP']).replace(/\./g, '').trim(),
           'Vencimento': excelDateParaJS(linha['Vencimento']),
           'Prorrogado': excelDateParaJS(linha['Prorrogado']),
           'Dias': linha['Dias'] ?? '',
