@@ -3,19 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conversor de Faturas</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <title>Portal de Sistemas</title>
+
   <style>
     :root {
       --azul-claro: #69A0D3;
       --azul-escuro: #00285C;
       --dourado: #D6AE00;
+      --fundo: #f6f8fb;
       --branco: #ffffff;
-      --fundo: #f5f7fb;
-      --texto: #1b2b41;
+      --texto: #172033;
       --texto-suave: #667085;
-      --borda: #dbe4f0;
+      --borda: #d9e3ef;
+      --borda-suave: #edf2f7;
       --sombra: rgba(0, 40, 92, 0.08);
+      --sombra-hover: rgba(0, 40, 92, 0.14);
     }
 
     * {
@@ -27,48 +29,106 @@
 
     body {
       min-height: 100vh;
-      background: var(--fundo);
+      background:
+        radial-gradient(circle at top left, rgba(105,160,211,0.16), transparent 32%),
+        linear-gradient(180deg, #ffffff 0%, var(--fundo) 48%, #eef4fa 100%);
       color: var(--texto);
+    }
+
+    header {
+      padding: 30px 24px 54px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,251,255,0.96)),
+        radial-gradient(circle at top right, rgba(105,160,211,0.20), transparent 38%);
+      border-bottom: 1px solid var(--borda-suave);
+    }
+
+    .nav {
+      max-width: 1180px;
+      margin: 0 auto 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 32px 16px;
+      justify-content: space-between;
+      gap: 18px;
     }
 
-    .container {
-      width: 100%;
-      max-width: 760px;
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-weight: 800;
+      color: var(--azul-escuro);
+      letter-spacing: 0.2px;
+      font-size: 14px;
     }
 
-    .card {
+    .logo small {
+      color: var(--texto-suave);
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .logo-icone {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--azul-claro), var(--azul-escuro));
+      box-shadow: 0 10px 24px rgba(105,160,211,0.28);
+      color: var(--branco);
+      font-size: 21px;
+    }
+
+    .logo span strong {
+      color: var(--dourado);
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--azul-escuro);
+      font-size: 13px;
       background: var(--branco);
       border: 1px solid var(--borda);
-      border-radius: 28px;
-      box-shadow: 0 12px 40px var(--sombra);
-      overflow: hidden;
+      padding: 9px 13px;
+      border-radius: 999px;
+      box-shadow: 0 8px 22px var(--sombra);
+      font-weight: 700;
     }
 
-    .topo {
-      padding: 38px 38px 24px;
-      border-bottom: 1px solid var(--borda);
-      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    .status-ponto {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #36b37e;
+      box-shadow: 0 0 12px rgba(54,179,126,0.65);
+    }
+
+    .hero {
+      max-width: 790px;
+      margin: 0 auto;
+      text-align: center;
     }
 
     .selo {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 14px;
-      border: 1px solid #d8e3f0;
+      padding: 8px 15px;
       border-radius: 999px;
-      color: var(--azul-escuro);
-      font-size: 13px;
-      margin-bottom: 18px;
       background: #f8fbff;
-      font-weight: 600;
+      border: 1px solid var(--borda);
+      color: var(--azul-escuro);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 22px var(--sombra);
     }
 
-    .ponto {
+    .selo::before {
+      content: "";
       width: 8px;
       height: 8px;
       border-radius: 999px;
@@ -76,408 +136,817 @@
     }
 
     h1 {
-      font-size: clamp(24px, 4vw, 36px);
-      line-height: 1.08;
+      font-size: clamp(30px, 5vw, 52px);
       margin-bottom: 12px;
-      letter-spacing: -1px;
+      letter-spacing: -1.5px;
+      line-height: 1.04;
       color: var(--azul-escuro);
+    }
+
+    h1 strong {
+      color: var(--azul-claro);
     }
 
     .subtitulo {
       color: var(--texto-suave);
       font-size: 16px;
+      max-width: 720px;
+      margin: 0 auto;
       line-height: 1.6;
-      max-width: 620px;
     }
 
-    .conteudo {
-      padding: 34px;
+    main {
+      width: 100%;
+      max-width: 1180px;
+      margin: -30px auto 0;
+      padding: 0 20px 42px;
+      position: relative;
+      z-index: 2;
     }
 
-    .upload-area {
-      border: 1.5px dashed #c7d8ea;
-      background: #fafcff;
+    .painel-controle,
+    .form-card {
+      background: var(--branco);
+      border: 1px solid var(--borda-suave);
+      box-shadow: 0 16px 44px var(--sombra);
       border-radius: 24px;
-      padding: 40px 30px;
-      text-align: center;
-      transition: 0.25s ease;
+      padding: 18px;
+      margin-bottom: 24px;
     }
 
-    .upload-area:hover {
+    .barra-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .barra-topo h2 {
+      color: var(--azul-escuro);
+      font-size: 21px;
+      letter-spacing: -0.3px;
+    }
+
+    .controles {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filtros {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filtro-btn {
+      border: 1px solid var(--borda);
+      background: #f8fbff;
+      color: var(--azul-escuro);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.22s ease;
+      white-space: nowrap;
+    }
+
+    .filtro-btn:hover,
+    .filtro-btn.ativo {
+      background: var(--azul-escuro);
+      color: var(--branco);
+      border-color: var(--azul-escuro);
+      transform: translateY(-1px);
+    }
+
+    .botao-novo {
+      background: linear-gradient(135deg, var(--azul-claro), var(--azul-escuro));
+      color: var(--branco);
+      border-color: transparent;
+    }
+
+    .busca {
+      width: min(100%, 315px);
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 14px;
+      outline: none;
+      background: var(--branco);
+      color: var(--texto);
+    }
+
+    .busca::placeholder {
+      color: #98a2b3;
+    }
+
+    .busca:focus,
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
       border-color: var(--azul-claro);
-      background: #f5faff;
+      box-shadow: 0 0 0 4px rgba(105,160,211,0.16);
     }
 
-    .icone {
+    .oculto {
+      display: none;
+    }
+
+    .form-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .form-header h2 {
+      color: var(--azul-escuro);
+      margin: 8px 0 6px;
+      font-size: 23px;
+    }
+
+    .form-header p {
+      color: var(--texto-suave);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .fechar {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      border: 1px solid var(--borda);
+      background: #f8fbff;
+      color: var(--azul-escuro);
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .form-grid label {
+      color: var(--azul-escuro);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .campo-full {
+      grid-column: 1 / -1;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+      width: 100%;
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+      background: #ffffff;
+      color: var(--texto);
+    }
+
+    .form-grid input::placeholder,
+    .form-grid textarea::placeholder {
+      color: #98a2b3;
+    }
+
+    .upload-imagem input {
+      display: none;
+    }
+
+    .upload-imagem span {
+      border: 1px dashed rgba(105,160,211,0.75);
+      border-radius: 15px;
+      padding: 16px;
+      text-align: center;
+      color: var(--azul-escuro);
+      background: #f8fbff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .upload-imagem small {
+      color: var(--texto-suave);
+      font-weight: 400;
+    }
+
+    .form-acoes {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .salvar {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 20px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.22s ease;
+      background: linear-gradient(135deg, var(--azul-claro), var(--azul-escuro));
+      color: var(--branco);
+    }
+
+    .salvar:hover {
+      transform: translateY(-2px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 22px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--branco);
+      border: 1px solid var(--borda-suave);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 14px 34px var(--sombra);
+      transition: 0.25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 44px var(--sombra-hover);
+      border-color: rgba(105,160,211,0.65);
+    }
+
+    .acoes-card {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      display: flex;
+      gap: 7px;
+    }
+
+    .acao-card {
+      width: 31px;
+      height: 31px;
+      border: 1px solid rgba(255,255,255,0.82);
+      background: rgba(255,255,255,0.92);
+      color: var(--azul-escuro);
+      border-radius: 11px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+      transition: 0.2s ease;
+    }
+
+    .acao-card:hover {
+      transform: translateY(-1px);
+      background: var(--azul-escuro);
+      color: var(--branco);
+    }
+
+    .excluir:hover {
+      background: #d92d20;
+      color: var(--branco);
+    }
+
+    .imagem-sistema {
+      height: 165px;
+      background: linear-gradient(135deg, #eef6fd, #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--borda-suave);
+      position: relative;
+    }
+
+    .imagem-sistema img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      padding: 10px;
+      background: #ffffff;
+      display: block;
+    }
+
+    .placeholder {
       width: 74px;
       height: 74px;
-      margin: 0 auto 18px;
       border-radius: 22px;
       display: grid;
       place-items: center;
       background: linear-gradient(135deg, var(--azul-claro), var(--azul-escuro));
       color: var(--branco);
-      font-size: 34px;
-      box-shadow: 0 10px 24px rgba(105, 160, 211, 0.22);
+      font-size: 31px;
+      box-shadow: 0 10px 22px rgba(105,160,211,0.28);
     }
 
-    .upload-area h2 {
-      font-size: 24px;
-      color: var(--azul-escuro);
-      margin-bottom: 8px;
-    }
-
-    .upload-area p {
-      color: var(--texto-suave);
-      font-size: 15px;
-      margin-bottom: 28px;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
-    .botoes {
+    .conteudo-card {
+      padding: 19px;
+      flex: 1;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 14px;
-      margin-top: 8px;
+      flex-direction: column;
     }
 
-    .btn {
-      border: none;
-      border-radius: 14px;
-      padding: 14px 24px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.22s ease;
-      text-decoration: none;
+    .tag {
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(105,160,211,0.13);
+      border: 1px solid rgba(105,160,211,0.24);
+      color: var(--azul-escuro);
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      color: var(--azul-escuro);
+      font-size: 17px;
+      margin-bottom: 8px;
+      letter-spacing: -0.2px;
+    }
+
+    .card p {
+      color: var(--texto-suave);
+      line-height: 1.55;
+      font-size: 13.3px;
+      margin-bottom: 18px;
+      flex: 1;
+    }
+
+    .abrir {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 170px;
+      gap: 8px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 13px;
+      background: var(--azul-escuro);
+      color: var(--branco);
+      font-weight: 800;
+      font-size: 13px;
+      box-shadow: 0 10px 22px rgba(0,40,92,0.16);
     }
 
-    .btn-upload {
+    .card:hover .abrir {
       background: var(--azul-claro);
       color: var(--branco);
     }
 
-    .btn-converter {
-      background: var(--dourado);
-      color: #1d1d1d;
-    }
-
-    .btn-baixar {
-      background: var(--azul-escuro);
-      color: var(--branco);
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.03);
-    }
-
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .arquivo {
-      margin-top: 20px;
-      color: var(--azul-escuro);
-      font-size: 14px;
-      font-weight: 600;
-      min-height: 20px;
-    }
-
-    .mensagem {
-      margin-top: 24px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      display: none;
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    .mensagem.sucesso {
-      display: block;
-      background: #eef8ef;
-      border: 1px solid #b8e0bc;
-      color: #206737;
-    }
-
-    .mensagem.erro {
-      display: block;
-      background: #fff1f1;
-      border: 1px solid #f2b4b4;
-      color: #9f2d2d;
-    }
-
-    .rodape {
-      padding: 18px 34px 30px;
-      color: #8a94a6;
-      font-size: 13px;
+    footer {
       text-align: center;
+      color: #8a94a6;
+      padding: 20px;
+      font-size: 13px;
     }
 
-    @media (max-width: 560px) {
-      .topo, .conteudo {
-        padding: 26px 20px;
+    footer strong {
+      font-style: italic;
+      color: #667085;
+    }
+
+    @media (max-width: 760px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
       }
 
-      .upload-area {
-        padding: 28px 18px;
+      main {
+        margin-top: -26px;
       }
 
-      .btn {
+      .barra-topo,
+      .controles {
+        align-items: stretch;
+        flex-direction: column;
         width: 100%;
+      }
+
+      .filtros,
+      .busca {
+        width: 100%;
+      }
+
+      .filtro-btn {
+        flex: 1;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
 </head>
 <body>
-  <main class="container">
-    <section class="card">
-      <div class="topo">
-        <div class="selo"><span class="ponto"></span> Conversor de Relatórios</div>
-        <h1>Atualize seu relatório em poucos cliques</h1>
-        <p class="subtitulo">Faça o upload da planilha recebida do Benner, converta o arquivo e baixe o Excel atualizado para uso.</p>
+  <header>
+    <div class="nav">
+      <div class="logo">
+        <div class="logo-icone">▦</div>
+        <span>PORTAL DE <strong>SISTEMAS</strong><br><small>Soluções digitais</small></span>
       </div>
+      <div class="status"><span class="status-ponto"></span> Sistemas online</div>
+    </div>
 
-      <div class="conteudo">
-        <div class="upload-area">
-          <div class="icone">↥</div>
-          <h2>Enviar arquivo</h2>
-          <p>Selecione a planilha de faturas para iniciar a conversão.</p>
+    <div class="hero">
+      <div class="selo">Central de Acessos Corporativa</div>
+      <h1>Todos os sistemas em <strong>um só lugar</strong></h1>
+      <p class="subtitulo">Acesse rapidamente os portais, conversores, dashboards e ferramentas criadas para apoiar as rotinas da empresa e seus projetos pessoais.</p>
+    </div>
+  </header>
 
-          <input id="arquivoInput" type="file" accept=".xls,.xlsx,.xlsm" />
-
-          <div class="botoes">
-            <label class="btn btn-upload" for="arquivoInput">Escolher arquivo</label>
-            <button id="converterBtn" class="btn btn-converter" disabled>Converter</button>
-            <button id="baixarBtn" class="btn btn-baixar" disabled>Baixar Excel</button>
+  <main>
+    <section class="painel-controle">
+      <div class="barra-topo">
+        <h2>Sistemas disponíveis</h2>
+        <div class="controles">
+          <div class="filtros">
+            <button class="filtro-btn ativo" data-filtro="todos">Todos</button>
+            <button class="filtro-btn" data-filtro="empresa">Empresa</button>
+            <button class="filtro-btn" data-filtro="pessoal">Meus pessoais</button>
           </div>
-
-          <div id="arquivoNome" class="arquivo"></div>
-          <div id="mensagem" class="mensagem"></div>
+          <input id="busca" class="busca" type="text" placeholder="Buscar sistema..." />
+          <button id="abrirCadastro" class="filtro-btn botao-novo">+ Novo sistema</button>
         </div>
       </div>
+    </section>
 
-      <div class="rodape">Desenvolvido por <strong><em>Roberto Lino</em></strong></div>
+    <section id="formularioSistema" class="formulario-sistema oculto">
+      <div class="form-card">
+        <div class="form-header">
+          <div>
+            <span class="tag">Cadastro</span>
+            <h2 id="tituloFormulario">Adicionar novo sistema</h2>
+            <p>Inclua a imagem, o link e escolha onde esse sistema deve aparecer.</p>
+          </div>
+          <button id="fecharCadastro" class="fechar" type="button">×</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Nome do sistema
+            <input id="novoNome" type="text" placeholder="Ex: Conversor de Relatórios" />
+          </label>
+
+          <label>
+            Categoria
+            <select id="novaCategoria">
+              <option value="empresa">Empresa</option>
+              <option value="pessoal">Meus pessoais</option>
+            </select>
+          </label>
+
+          <label class="campo-full">
+            Link do sistema
+            <input id="novoLink" type="url" placeholder="https://..." />
+          </label>
+
+          <label class="campo-full">
+            Descrição
+            <textarea id="novaDescricao" rows="3" placeholder="Explique brevemente para que serve esse sistema."></textarea>
+          </label>
+
+          <label class="campo-full upload-imagem">
+            Imagem do sistema
+            <input id="novaImagem" type="file" accept="image/*" />
+            <span>Selecionar imagem</span>
+            <small id="nomeImagem">Nenhuma imagem selecionada</small>
+          </label>
+        </div>
+
+        <div class="form-acoes">
+          <button id="salvarSistema" class="salvar" type="button">Salvar sistema</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="listaSistemas">
+      <a class="card" href="https://robertolino2386.github.io/conversor-relatorios/" target="_blank" data-id="fixo-1" data-fixo="true" data-categoria="empresa" data-nome="conversor relatórios faturas benner excel empresa">
+        <div class="acoes-card">
+          <button class="acao-card editar" type="button" title="Editar">✎</button>
+          <button class="acao-card excluir" type="button" title="Excluir">×</button>
+        </div>
+        <div class="imagem-sistema">
+          <div class="placeholder">↥</div>
+        </div>
+        <div class="conteudo-card">
+          <span class="tag">Empresa</span>
+          <h3>Conversor de Relatórios</h3>
+          <p>Converte a planilha recebida do Benner em um Excel tratado, padronizado e pronto para uso.</p>
+          <span class="abrir">Abrir sistema →</span>
+        </div>
+      </a>
+
+      <a class="card" href="#" target="_blank" data-id="fixo-2" data-fixo="true" data-categoria="empresa" data-nome="sistema exemplo cadastro clientes fornecedores empresa">
+        <div class="acoes-card">
+          <button class="acao-card editar" type="button" title="Editar">✎</button>
+          <button class="acao-card excluir" type="button" title="Excluir">×</button>
+        </div>
+        <div class="imagem-sistema">
+          <div class="placeholder">☷</div>
+        </div>
+        <div class="conteudo-card">
+          <span class="tag">Empresa</span>
+          <h3>Cadastro de Clientes</h3>
+          <p>Área reservada para o portal de cadastro de clientes e fornecedores.</p>
+          <span class="abrir">Abrir sistema →</span>
+        </div>
+      </a>
+
+      <a class="card" href="#" target="_blank" data-id="fixo-3" data-fixo="true" data-categoria="empresa" data-nome="dashboard recebimentos adquirências cartão empresa">
+        <div class="acoes-card">
+          <button class="acao-card editar" type="button" title="Editar">✎</button>
+          <button class="acao-card excluir" type="button" title="Excluir">×</button>
+        </div>
+        <div class="imagem-sistema">
+          <div class="placeholder">▣</div>
+        </div>
+        <div class="conteudo-card">
+          <span class="tag">Empresa</span>
+          <h3>Dashboard de Recebimentos</h3>
+          <p>Área reservada para dashboards e acompanhamentos de indicadores financeiros.</p>
+          <span class="abrir">Abrir sistema →</span>
+        </div>
+      </a>
+
+      <a class="card" href="#" target="_blank" data-id="fixo-4" data-fixo="true" data-categoria="pessoal" data-nome="projeto pessoal estudos automações">
+        <div class="acoes-card">
+          <button class="acao-card editar" type="button" title="Editar">✎</button>
+          <button class="acao-card excluir" type="button" title="Excluir">×</button>
+        </div>
+        <div class="imagem-sistema">
+          <div class="placeholder">✦</div>
+        </div>
+        <div class="conteudo-card">
+          <span class="tag">Pessoal</span>
+          <h3>Projetos Pessoais</h3>
+          <p>Área reservada para ferramentas, páginas e ideias criadas para uso pessoal.</p>
+          <span class="abrir">Abrir sistema →</span>
+        </div>
+      </a>
     </section>
   </main>
 
+  <footer>
+    Desenvolvido por <strong>Roberto Lino</strong>
+  </footer>
+
   <script>
-    const arquivoInput = document.getElementById('arquivoInput');
-    const converterBtn = document.getElementById('converterBtn');
-    const baixarBtn = document.getElementById('baixarBtn');
-    const arquivoNome = document.getElementById('arquivoNome');
-    const mensagem = document.getElementById('mensagem');
+    const busca = document.getElementById('busca');
+    const listaSistemas = document.getElementById('listaSistemas');
+    const botoesFiltro = document.querySelectorAll('.filtro-btn[data-filtro]');
+    const abrirCadastro = document.getElementById('abrirCadastro');
+    const fecharCadastro = document.getElementById('fecharCadastro');
+    const formularioSistema = document.getElementById('formularioSistema');
+    const salvarSistema = document.getElementById('salvarSistema');
+    const novaImagem = document.getElementById('novaImagem');
+    const nomeImagem = document.getElementById('nomeImagem');
+    const tituloFormulario = document.getElementById('tituloFormulario');
 
-    let arquivoSelecionado = null;
-    let workbookConvertido = null;
+    let filtroAtual = 'todos';
+    let imagemBase64 = '';
+    let editandoId = null;
 
-    const colunasOriginais = [
-      'Column1', 'Column2', 'Column3', 'Column4', 'Column5', 'Column6',
-      'Column7', 'Column8', 'Column9', 'Column10', 'Column11', 'Column12',
-      'Column13', 'Column14', 'Column15', 'Column16', 'Column17', 'Column18'
-    ];
-
-    const colunasFinais = [
-      'Clientes', 'Fatura', 'Nr. AP', 'Vencimento', 'Prorrogado',
-      'Dias', 'Emissão', 'Tipo D.', 'Moeda', 'Total Pagar'
-    ];
-
-    function mostrarMensagem(texto, tipo) {
-      mensagem.textContent = texto;
-      mensagem.className = `mensagem ${tipo}`;
+    function obterCards() {
+      return document.querySelectorAll('.card');
     }
 
-    function excelDateParaJS(valor) {
-      if (valor === null || valor === undefined || valor === '') return '';
-      if (valor instanceof Date) return valor;
-      if (typeof valor === 'number') {
-        const data = XLSX.SSF.parse_date_code(valor);
-        if (!data) return valor;
-        return new Date(data.y, data.m - 1, data.d);
+    function aplicarFiltros() {
+      const termo = busca.value.toLowerCase().trim();
+
+      obterCards().forEach(card => {
+        const categoria = card.dataset.categoria;
+        const nome = card.dataset.nome.toLowerCase();
+        const texto = card.textContent.toLowerCase();
+        const bateCategoria = filtroAtual === 'todos' || categoria === filtroAtual;
+        const bateBusca = nome.includes(termo) || texto.includes(termo);
+
+        card.style.display = bateCategoria && bateBusca ? 'flex' : 'none';
+      });
+    }
+
+    function gerarId() {
+      return `sistema-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    }
+
+    function criarCard(sistema) {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = sistema.link || '#';
+      card.target = '_blank';
+      card.dataset.id = sistema.id;
+      card.dataset.categoria = sistema.categoria;
+      card.dataset.nome = `${sistema.nome} ${sistema.descricao} ${sistema.categoria}`.toLowerCase();
+
+      const tag = sistema.categoria === 'empresa' ? 'Empresa' : 'Pessoal';
+      const imagem = sistema.imagem
+        ? `<img src="${sistema.imagem}" alt="${sistema.nome}">`
+        : '<div class="placeholder">▦</div>';
+
+      card.innerHTML = `
+        <div class="acoes-card">
+          <button class="acao-card editar" type="button" title="Editar">✎</button>
+          <button class="acao-card excluir" type="button" title="Excluir">×</button>
+        </div>
+        <div class="imagem-sistema">
+          ${imagem}
+        </div>
+        <div class="conteudo-card">
+          <span class="tag">${tag}</span>
+          <h3>${sistema.nome}</h3>
+          <p>${sistema.descricao}</p>
+          <span class="abrir">Abrir sistema →</span>
+        </div>
+      `;
+
+      listaSistemas.appendChild(card);
+    }
+
+    function obterSistemasSalvos() {
+      return JSON.parse(localStorage.getItem('portalSistemas') || '[]');
+    }
+
+    function gravarSistemas(sistemas) {
+      localStorage.setItem('portalSistemas', JSON.stringify(sistemas));
+    }
+
+    function carregarSistemasSalvos() {
+      const sistemas = obterSistemasSalvos();
+      sistemas.forEach(criarCard);
+      aplicarFiltros();
+    }
+
+    function limparFormulario() {
+      document.getElementById('novoNome').value = '';
+      document.getElementById('novoLink').value = '';
+      document.getElementById('novaDescricao').value = '';
+      document.getElementById('novaCategoria').value = 'empresa';
+      novaImagem.value = '';
+      nomeImagem.textContent = 'Nenhuma imagem selecionada';
+      imagemBase64 = '';
+      editandoId = null;
+      tituloFormulario.textContent = 'Adicionar novo sistema';
+      salvarSistema.textContent = 'Salvar sistema';
+    }
+
+    function abrirFormularioEdicao(card) {
+      editandoId = card.dataset.id;
+      const nome = card.querySelector('h3').textContent.trim();
+      const descricao = card.querySelector('p').textContent.trim();
+      const categoria = card.dataset.categoria;
+      const link = card.getAttribute('href');
+      const imagem = card.querySelector('img');
+
+      document.getElementById('novoNome').value = nome;
+      document.getElementById('novoLink').value = link === '#' ? '' : link;
+      document.getElementById('novaDescricao').value = descricao;
+      document.getElementById('novaCategoria').value = categoria;
+      imagemBase64 = imagem ? imagem.getAttribute('src') : '';
+      nomeImagem.textContent = imagem ? 'Imagem atual mantida' : 'Nenhuma imagem selecionada';
+      tituloFormulario.textContent = 'Editar sistema';
+      salvarSistema.textContent = 'Salvar alterações';
+
+      formularioSistema.classList.remove('oculto');
+      formularioSistema.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function atualizarCard(card, sistema) {
+      card.href = sistema.link || '#';
+      card.dataset.categoria = sistema.categoria;
+      card.dataset.nome = `${sistema.nome} ${sistema.descricao} ${sistema.categoria}`.toLowerCase();
+      const tag = sistema.categoria === 'empresa' ? 'Empresa' : 'Pessoal';
+      const imagemArea = card.querySelector('.imagem-sistema');
+      imagemArea.innerHTML = sistema.imagem ? `<img src="${sistema.imagem}" alt="${sistema.nome}">` : '<div class="placeholder">▦</div>';
+      card.querySelector('.tag').textContent = tag;
+      card.querySelector('h3').textContent = sistema.nome;
+      card.querySelector('p').textContent = sistema.descricao;
+    }
+
+    busca.addEventListener('input', aplicarFiltros);
+
+    botoesFiltro.forEach(botao => {
+      botao.addEventListener('click', () => {
+        botoesFiltro.forEach(item => item.classList.remove('ativo'));
+        botao.classList.add('ativo');
+        filtroAtual = botao.dataset.filtro;
+        aplicarFiltros();
+      });
+    });
+
+    abrirCadastro.addEventListener('click', () => {
+      limparFormulario();
+      formularioSistema.classList.remove('oculto');
+      formularioSistema.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    fecharCadastro.addEventListener('click', () => {
+      formularioSistema.classList.add('oculto');
+      limparFormulario();
+    });
+
+    novaImagem.addEventListener('change', () => {
+      const arquivo = novaImagem.files[0];
+      nomeImagem.textContent = arquivo ? arquivo.name : 'Nenhuma imagem selecionada';
+
+      if (!arquivo) return;
+
+      const leitor = new FileReader();
+      leitor.onload = evento => {
+        imagemBase64 = evento.target.result;
+      };
+      leitor.readAsDataURL(arquivo);
+    });
+
+    salvarSistema.addEventListener('click', () => {
+      const nome = document.getElementById('novoNome').value.trim();
+      const categoria = document.getElementById('novaCategoria').value;
+      const link = document.getElementById('novoLink').value.trim();
+      const descricao = document.getElementById('novaDescricao').value.trim();
+
+      if (!nome || !link || !descricao) {
+        alert('Preencha nome, link e descrição do sistema.');
+        return;
       }
-      if (typeof valor === 'string') {
-        const texto = valor.trim();
-        const partes = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
-        if (partes) {
-          const dia = Number(partes[1]);
-          const mes = Number(partes[2]) - 1;
-          let ano = Number(partes[3]);
-          if (ano < 100) ano += 2000;
-          return new Date(ano, mes, dia);
+
+      const sistema = {
+        id: editandoId || gerarId(),
+        nome,
+        categoria,
+        link,
+        descricao,
+        imagem: imagemBase64
+      };
+
+      if (editandoId) {
+        const card = document.querySelector(`.card[data-id="${editandoId}"]`);
+        if (card) atualizarCard(card, sistema);
+
+        const sistemas = obterSistemasSalvos();
+        const index = sistemas.findIndex(item => item.id === editandoId);
+        if (index >= 0) {
+          sistemas[index] = sistema;
+          gravarSistemas(sistemas);
         }
+      } else {
+        criarCard(sistema);
+        const sistemas = obterSistemasSalvos();
+        sistemas.push(sistema);
+        gravarSistemas(sistemas);
       }
-      return valor;
-    }
 
-    function moedaParaNumero(valor) {
-      if (valor === null || valor === undefined || valor === '') return null;
-      if (typeof valor === 'number') return valor;
-      const texto = String(valor)
-        .replace(/R\$/g, '')
-        .replace(/\s/g, '')
-        .replace(/\./g, '')
-        .replace(',', '.');
-      const numero = Number(texto);
-      return Number.isNaN(numero) ? valor : numero;
-    }
+      aplicarFiltros();
+      limparFormulario();
+      formularioSistema.classList.add('oculto');
+    });
 
-    function limparFatura(valor) {
-      if (valor === null || valor === undefined) return '';
-      let texto = String(valor).replace(/-1/g, '').trim();
-      const posicaoZero = texto.indexOf('0');
-      if (posicaoZero >= 0) {
-        texto = texto.slice(posicaoZero + 1);
+    listaSistemas.addEventListener('click', (evento) => {
+      const botaoEditar = evento.target.closest('.editar');
+      const botaoExcluir = evento.target.closest('.excluir');
+
+      if (!botaoEditar && !botaoExcluir) return;
+
+      evento.preventDefault();
+      evento.stopPropagation();
+
+      const card = evento.target.closest('.card');
+      const id = card.dataset.id;
+
+      if (botaoEditar) {
+        abrirFormularioEdicao(card);
+        return;
       }
-      return texto.trim();
-    }
 
-    function converterDados(linhas) {
-      const linhasComColunas = linhas.map(linha => {
-        const obj = {};
-        colunasOriginais.forEach((coluna, indice) => {
-          obj[coluna] = linha[indice] ?? null;
-        });
-        return obj;
-      });
+      if (botaoExcluir) {
+        if (!confirm('Deseja excluir este sistema do portal?')) return;
 
-      const linhasFiltradas = linhasComColunas.filter(linha => {
-        const valor = linha.Column1;
-        return valor !== null &&
-          valor !== undefined &&
-          valor !== '' &&
-          valor !== 'Copastur Viagens e Turismo Ltda' &&
-          valor !== 'P.2006' &&
-          valor !== 'Sistema Corporativo' &&
-          valor !== 'Total do fornecedor';
-      });
-
-      if (linhasFiltradas.length === 0) return [];
-
-      const cabecalhos = Object.values(linhasFiltradas[0]).map(valor => String(valor ?? '').trim());
-      const dados = linhasFiltradas.slice(1).map(linha => {
-        const valores = Object.values(linha);
-        const obj = {};
-        cabecalhos.forEach((cabecalho, indice) => {
-          obj[cabecalho || `Column${indice + 1}`] = valores[indice] ?? null;
-        });
-        return obj;
-      });
-
-      let clienteAtual = null;
-
-      const resultado = [];
-
-      dados.forEach(linha => {
-        if (linha['Cia.'] === 'Cia.') return;
-
-        let cia = linha['Cia.'];
-        if (String(cia).trim() === '1') cia = null;
-        if (cia !== null && cia !== undefined && String(cia).trim() !== '') {
-          clienteAtual = cia;
-        }
-        linha['Cia.'] = clienteAtual;
-
-        if (linha['Docto'] === null || linha['Docto'] === undefined || String(linha['Docto']).trim() === '') return;
-
-        const item = {
-          'Clientes': linha['Cia.'] ?? '',
-          'Fatura': limparFatura(linha['Docto']),
-          'Nr. AP': linha['Nr. AP'] === '' || linha['Nr. AP'] === null || linha['Nr. AP'] === undefined ? '' : String(linha['Nr. AP']).replace(/\./g, '').trim(),
-          'Vencimento': excelDateParaJS(linha['Vencimento']),
-          'Prorrogado': excelDateParaJS(linha['Prorrogado']),
-          'Dias': linha['Dias'] ?? '',
-          'Emissão': excelDateParaJS(linha['Emissão']),
-          'Tipo D.': linha['Tipo D.'] ?? '',
-          'Moeda': linha['Moeda'] ?? '',
-          'Total Pagar': moedaParaNumero(linha['Total Pagar'])
-        };
-
-        resultado.push(item);
-      });
-
-      return resultado;
-    }
-
-    arquivoInput.addEventListener('change', () => {
-      arquivoSelecionado = arquivoInput.files[0];
-      workbookConvertido = null;
-      baixarBtn.disabled = true;
-
-      if (arquivoSelecionado) {
-        arquivoNome.textContent = arquivoSelecionado.name;
-        converterBtn.disabled = false;
-        mensagem.className = 'mensagem';
-        mensagem.textContent = '';
+        card.remove();
+        const sistemas = obterSistemasSalvos().filter(item => item.id !== id);
+        gravarSistemas(sistemas);
+        aplicarFiltros();
       }
     });
 
-    converterBtn.addEventListener('click', async () => {
-      if (!arquivoSelecionado) return;
-
-      try {
-        const buffer = await arquivoSelecionado.arrayBuffer();
-        const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
-        const nomeAba = workbook.SheetNames.includes('Sheet1') ? 'Sheet1' : workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[nomeAba];
-        const linhas = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null, raw: true });
-
-        const dadosConvertidos = converterDados(linhas);
-
-        if (!dadosConvertidos.length) {
-          mostrarMensagem('Não foi possível converter este arquivo. Verifique se a planilha selecionada é a planilha de faturas.', 'erro');
-          baixarBtn.disabled = true;
-          return;
-        }
-
-        const novaPlanilha = XLSX.utils.json_to_sheet(dadosConvertidos, { header: colunasFinais });
-
-        const range = XLSX.utils.decode_range(novaPlanilha['!ref']);
-        for (let linha = 1; linha <= range.e.r; linha++) {
-          ['D', 'E', 'G'].forEach(coluna => {
-            const celula = novaPlanilha[`${coluna}${linha + 1}`];
-            if (celula && celula.v instanceof Date) {
-              celula.t = 'd';
-              celula.z = 'dd/mm/yyyy';
-            }
-          });
-          const celulaValor = novaPlanilha[`J${linha + 1}`];
-          if (celulaValor && typeof celulaValor.v === 'number') {
-            celulaValor.t = 'n';
-            celulaValor.z = 'R$ #,##0.00';
-          }
-        }
-
-        novaPlanilha['!cols'] = [
-          { wch: 46 }, { wch: 18 }, { wch: 12 }, { wch: 14 }, { wch: 14 },
-          { wch: 10 }, { wch: 14 }, { wch: 12 }, { wch: 10 }, { wch: 16 }
-        ];
-
-        workbookConvertido = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbookConvertido, novaPlanilha, 'Faturas Convertidas');
-
-        mostrarMensagem('Arquivo convertido com sucesso. Clique em Baixar Excel para salvar o relatório atualizado.', 'sucesso');
-        baixarBtn.disabled = false;
-      } catch (erro) {
-        mostrarMensagem('Não foi possível converter este arquivo. Selecione a planilha correta e tente novamente.', 'erro');
-        baixarBtn.disabled = true;
-      }
-    });
-
-    baixarBtn.addEventListener('click', () => {
-      if (!workbookConvertido) return;
-      XLSX.writeFile(workbookConvertido, 'relatorio_convertido.xlsx');
-    });
+    carregarSistemasSalvos();
   </script>
 </body>
 </html>
-
